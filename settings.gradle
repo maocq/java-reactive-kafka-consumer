@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'JavaReactiveKafka'
+rootProject.name = 'JavaReactiveKafkaConsumer'
 
 include ':app-service'
 include ':model'
