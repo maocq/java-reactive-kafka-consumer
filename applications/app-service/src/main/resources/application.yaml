@@ -11,6 +11,11 @@ spring:
       path: "/h2"
   profiles:
     include: null
+  kafka:
+    consumer:
+      bootstrap-servers: "localhost:9092"
+      group-id: "JavaReactiveKafka"
+      #enable-auto-commit: false
 management:
   endpoints:
     web:
@@ -22,3 +27,7 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+adapters:
+  kafka:
+    consumer:
+      topic: "input-topic"
