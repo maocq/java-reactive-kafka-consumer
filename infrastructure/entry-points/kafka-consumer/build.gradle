@@ -7,5 +7,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot'
     implementation 'org.apache.logging.log4j:log4j-api'
 
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
     implementation 'io.micrometer:micrometer-core'
 }

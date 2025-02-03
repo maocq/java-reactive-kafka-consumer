@@ -31,3 +31,6 @@ adapters:
   kafka:
     consumer:
       topic: "input-topic"
+logging:
+  level:
+    root: info
