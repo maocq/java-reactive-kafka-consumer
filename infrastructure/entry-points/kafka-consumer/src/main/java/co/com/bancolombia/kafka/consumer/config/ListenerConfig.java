@@ -1,8 +1,8 @@
 package co.com.bancolombia.kafka.consumer.config;
 
 import lombok.Builder;
-import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import reactor.core.publisher.Mono;
+import reactor.kafka.receiver.ReceiverOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,17 +11,17 @@ import java.util.function.Function;
 
 @Builder
 public record ListenerConfig(
-        ReactiveKafkaConsumerTemplate<String, byte[]> kafkaConsumer, HandlerRegistry handlerRegistry,
+        ReceiverOptions<String, byte[]> receiverOptions, HandlerRegistry handlerRegistry,
         int concurrency, boolean dlq) {
 
     public ListenerConfig(
-            ReactiveKafkaConsumerTemplate<String, byte[]> kafkaConsumer, HandlerRegistry handlerRegistry,
+            ReceiverOptions<String, byte[]> receiverOptions, HandlerRegistry handlerRegistry,
             int concurrency, boolean dlq) {
-        if (kafkaConsumer == null) {
-            throw new IllegalArgumentException("Invalid kafkaConsumer");
+        if (receiverOptions == null) {
+            throw new IllegalArgumentException("Invalid receiverOptions");
         }
 
-        this.kafkaConsumer = kafkaConsumer;
+        this.receiverOptions = receiverOptions;
         this.handlerRegistry = handlerRegistry == null ? HandlerRegistry.register() : handlerRegistry;
         this.concurrency = concurrency <= 0 ? 1 : concurrency;
         this.dlq = dlq;

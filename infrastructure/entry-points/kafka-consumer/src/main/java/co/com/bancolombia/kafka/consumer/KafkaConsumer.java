@@ -7,9 +7,9 @@ import co.com.bancolombia.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.kafka.receiver.ReceiverOptions;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class KafkaConsumer {
 
     private final KafkaListener kafkaListener;
     private final EventsHandler eventsHandler;
-    private final ReactiveKafkaConsumerTemplate<String, byte[]> kafkaConsumer;
+    private final ReceiverOptions<String, byte[]> receiverOptions;
 
     @EventListener(ApplicationStartedEvent.class)
     public Flux<Void> listenMessages() {
@@ -26,7 +26,7 @@ public class KafkaConsumer {
                 .listen("other-topic", event -> eventsHandler.handlerObject(event).retry(3), Object.class);
 
         var listenerConfig = ListenerConfig.builder()
-                .kafkaConsumer(kafkaConsumer)
+                .receiverOptions(receiverOptions)
                 .handlerRegistry(handler)
                 .dlq(true)
                 .build();

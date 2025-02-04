@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
-import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.kafka.receiver.MicrometerConsumerListener;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.sender.SenderOptions;
@@ -27,7 +25,8 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ReceiverOptions<String, byte[]> kafkaReceiverOptions(KafkaProperties kafkaProperties) throws UnknownHostException {
+    public ReceiverOptions<String, byte[]> kafkaReceiverOptions(
+            KafkaProperties kafkaProperties, @Value(value = "${adapters.kafka.consumer.topic}") String topic) throws UnknownHostException {
         MeterRegistry registry = new SimpleMeterRegistry();
         MicrometerConsumerListener consumerListener = new MicrometerConsumerListener(registry);
 
@@ -35,23 +34,17 @@ public class KafkaConfig {
         ReceiverOptions<String, byte[]> basicReceiverOptions = ReceiverOptions.create(kafkaProperties.buildConsumerProperties());
         return basicReceiverOptions.consumerListener(consumerListener)
                 .consumerProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
-                .consumerProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
+                .consumerProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class)
+                .subscription(List.of(topic, "other-topic"));
     }
 
     @Bean
-    public ReactiveKafkaConsumerTemplate<String, byte[]> reactiveKafkaConsumerTemplate(
-            ReceiverOptions<String, byte[]> kafkaReceiverOptions,
-            @Value(value = "${adapters.kafka.consumer.topic}") String topic) {
-        return new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions.subscription(List.of(topic, "other-topic")));
-    }
-
-    @Bean
-    public ReactiveKafkaProducerTemplate<String, byte[]> kafkaTemplateConfig(KafkaProperties properties) {
+    public SenderOptions<String, byte[]> kafkaTemplateConfig(KafkaProperties properties) {
         Map<String, Object> producerProps = properties.buildProducerProperties();
         producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 
-        return new ReactiveKafkaProducerTemplate<>(SenderOptions.create(producerProps));
+        return SenderOptions.create(producerProps);
     }
 
 
