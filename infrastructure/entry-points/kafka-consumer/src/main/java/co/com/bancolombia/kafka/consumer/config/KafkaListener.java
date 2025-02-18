@@ -51,7 +51,7 @@ public class KafkaListener {
                                 .doOnError(ignore -> listener.dlq(), error -> sendDlqMessage(consumerRecord, error))
                                 .onErrorComplete(),
                 listener.concurrency())
-                .retry(); //Connection errors
+                .retry(); //Defensive retry
     }
 
     private Mono<ListenerConfig.EventListener<Object>> getEventListener(
